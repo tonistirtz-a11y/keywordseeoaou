@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Unit 3 Key Words and I Spy</title>
+<link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1b1b2f; --purple:#6c4ad0; --purple2:#8f6cf0; --gold:#ffc83d; --green:#2fb86b; --red:#e2544f; --bg:#f4f0ff; --card:#ffffff;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{font-family:'Comic Neue','Comic Sans MS','Chalkboard SE',sans-serif;background:var(--bg);color:var(--ink);font-size:20px}
+.screen{display:none;max-width:860px;margin:0 auto;padding:16px}
+.screen.active{display:block}
+h1{margin:0;font-size:2em}
+.titlebar{background:#000;color:#fff;text-align:center;padding:14px 10px;border-radius:10px;margin-bottom:14px}
+.titlebar small{display:block;font-weight:400;font-size:.55em;opacity:.85;margin-top:2px}
+.card{background:var(--card);border:3px solid var(--ink);border-radius:16px;padding:16px;margin-bottom:14px}
+.btn{font-family:inherit;font-weight:700;font-size:1em;border:3px solid var(--ink);background:var(--gold);color:var(--ink);border-radius:14px;padding:14px 20px;min-height:56px;cursor:pointer;box-shadow:0 4px 0 var(--ink)}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn.purple{background:var(--purple);color:#fff}
+.btn.big{display:block;width:100%;margin:10px 0;font-size:1.15em;text-align:left}
+.btn.big span{display:block;font-weight:400;font-size:.75em;margin-top:2px}
+.btn.small{padding:8px 14px;min-height:44px;font-size:.85em}
+.hud{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.pill{background:#fff;border:3px solid var(--ink);border-radius:999px;padding:6px 14px;font-weight:700}
+.bar{flex:1;min-width:120px;height:18px;border:3px solid var(--ink);border-radius:999px;background:#fff;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--purple),var(--purple2));transition:width .3s}
+.prompt{font-size:1.1em;text-align:center;margin:6px 0 10px}
+.word{font-size:3em;font-weight:700;text-align:center;letter-spacing:1px}
+.u{text-decoration:underline;text-decoration-thickness:4px;text-underline-offset:6px}
+.spk{font-size:1em}
+.row{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.choices{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:12px}
+.choice{font-family:inherit;font-size:2em;font-weight:700;background:#fff;color:var(--ink);border:3px solid var(--ink);border-radius:16px;padding:18px 8px;min-height:84px;cursor:pointer;box-shadow:0 4px 0 var(--ink)}
+.choice:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.choice.right{background:var(--green);color:#fff}
+.choice.wrong{background:#ddd;color:#888;text-decoration:line-through}
+.tiles{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:18px 0 6px}
+.tile{font-family:inherit;font-size:2.6em;font-weight:700;width:68px;height:84px;background:#fff;border:3px solid var(--ink);border-radius:12px;cursor:pointer;box-shadow:0 4px 0 var(--ink)}
+.tile.sel{background:var(--gold)}
+.tile.right{background:var(--green);color:#fff}
+.tile.shake{animation:shake .35s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.target{display:inline-block;background:var(--purple);color:#fff;border-radius:12px;padding:2px 16px;font-size:1.3em;font-weight:700}
+.fb{min-height:2.6em;text-align:center;font-weight:700;margin-top:10px}
+.fb.good{color:#14783f}.fb.bad{color:#b3322d}
+.center{text-align:center}
+.stars{font-size:2.6em;letter-spacing:6px;margin:6px 0}
+.overlay{position:fixed;inset:0;background:rgba(27,27,47,.88);display:none;align-items:center;justify-content:center;padding:20px;z-index:10}
+.overlay.active{display:flex}
+.overlay .card{max-width:520px;text-align:center}
+.timer{font-size:3em;font-weight:700;color:var(--purple)}
+@media(max-width:520px){.word{font-size:2.4em}.tile{width:56px;height:72px;font-size:2.2em}.choice{font-size:1.7em}}
+</style>
+</head>
+<body>
+
+<!-- MENU -->
+<div id="menu" class="screen active">
+  <div class="titlebar"><h1>Key Words and I Spy</h1><small>Unit 3 &bull; Vowel Teams and Long Vowels</small></div>
+  <div class="card">
+    <p style="margin-top:0">Pick a game. Read the key words, listen for the sounds, and earn stars!</p>
+    <button class="btn big purple" onclick="startGame('match')">&#127919; Sound Match<span>Which key word has the same sound?</span></button>
+    <button class="btn big purple" onclick="startGame('spy')">&#128269; I Spy<span>Find the spelling hiding in the word.</span></button>
+    <button class="btn big" onclick="show('keys')">&#128214; Key Word Practice<span>Read the key words. Say the sound for the underlined part.</span></button>
+  </div>
+</div>
+
+<!-- KEY WORD PRACTICE -->
+<div id="keys" class="screen">
+  <div class="titlebar"><h1>Key Words</h1><small>Read these fast with no mistakes. Then say just the sound for the underlined part. Tap a word to hear it.</small></div>
+  <div class="card"><div class="row" id="keyGrid"></div></div>
+  <button class="btn" onclick="show('menu')">&larr; Back</button>
+</div>
+
+<!-- GAME -->
+<div id="game" class="screen">
+  <div class="hud">
+    <button class="btn small" onclick="quit()">&larr; Menu</button>
+    <div class="pill">&#11088; <span id="score">0</span></div>
+    <div class="pill">&#128293; <span id="streak">0</span></div>
+    <div class="bar"><i id="prog"></i></div>
+  </div>
+  <div class="card" id="stage"></div>
+  <div class="fb" id="fb"></div>
+  <div class="center"><button class="btn purple" id="nextBtn" style="display:none" onclick="next()">Next &#9654;</button></div>
+</div>
+
+<!-- END -->
+<div id="end" class="screen">
+  <div class="titlebar"><h1>Great work!</h1></div>
+  <div class="card center">
+    <div class="stars" id="endStars"></div>
+    <p id="endMsg"></p>
+    <button class="btn purple" onclick="startGame(G.mode)">Play again</button>
+    <button class="btn" onclick="show('menu')">Menu</button>
+  </div>
+</div>
+
+<!-- BRAIN BREAK -->
+<div id="brk" class="overlay">
+  <div class="card">
+    <h2 style="margin-top:0">&#129504; Brain Break!</h2>
+    <p id="brkText" style="font-size:1.2em"></p>
+    <div class="timer" id="brkTimer">15</div>
+    <button class="btn purple" onclick="endBreak()">I'm ready!</button>
+  </div>
+</div>
+
+<script>
+// ---------- DATA ----------
+// parts: [text, underlined?]   g = vowel sound group
+var KEY = [
+  {w:'sea',   p:[['s',0],['ea',1]], g:'e'},
+  {w:'show',  p:[['sh',0],['ow',1]], g:'o'},
+  {w:'hope',  p:[['h',0],['o',1],['p',0],['e',1]], g:'o'},
+  {w:'happy', p:[['happ',0],['y',1]], g:'e'},
+  {w:'meet',  p:[['m',0],['ee',1],['t',0]], g:'e'},
+  {w:'out',   p:[['ou',1],['t',0]], g:'ow'},
+  {w:'go',    p:[['g',0],['o',1]], g:'o'},
+  {w:'key',   p:[['k',0],['ey',1]], g:'e'},
+  {w:'chief', p:[['ch',0],['ie',1],['f',0]], g:'e'},
+  {w:'boat',  p:[['b',0],['oa',1],['t',0]], g:'o'},
+  {w:'though',p:[['th',0],['ough',1]], g:'o'},
+  {w:'these', p:[['th',0],['e',1],['s',0],['e',1]], g:'e'},
+  {w:'be',    p:[['b',0],['e',1]], g:'e'},
+  {w:'cow',   p:[['c',0],['ow',1]], g:'ow'},
+  {w:'toe',   p:[['t',0],['oe',1]], g:'o'}
+];
+var GLABEL = {e:'long e (\u0113)', o:'long o (\u014D)', ow:'the /ow/ sound as in cow'};
+var SPY = [['soap','oa'],['sheep','ee'],['ouch','ou'],['round','ou'],['road','oa'],['cheat','ea'],
+           ['cheek','ee'],['cloud','ou'],['beach','ea'],['toast','oa'],['need','ee'],['float','oa'],
+           ['leave','ea'],['clean','ea'],['seed','ee']];
+var SPYKEY = {oa:'boat', ou:'out', ee:'meet', ea:'sea'};
+var BREAKS = ['Stand up and stretch tall like a tree!','Do 10 jumping jacks!','Roll your shoulders back 5 times.',
+  'March in place and count to 20.','Touch your toes, then reach for the sky!','Take 3 slow, deep breaths.','Wiggle like a noodle for 15 seconds!'];
+
+// ---------- HELPERS ----------
+function $(id){return document.getElementById(id)}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function find(w){return KEY.filter(function(k){return k.w===w})[0]}
+function wordHTML(k){return k.p.map(function(x){return x[1]?'<span class="u">'+x[0]+'</span>':x[0]}).join('')}
+function speak(t){try{if(!window.speechSynthesis)return;speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);u.rate=.8;speechSynthesis.speak(u)}catch(e){}}
+function show(id){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});
+  $(id).classList.add('active');window.scrollTo(0,0);
+}
+
+// ---------- KEY WORD PRACTICE ----------
+(function(){
+  var g=$('keyGrid');
+  KEY.forEach(function(k){
+    var b=document.createElement('button');b.className='choice';b.style.width='170px';
+    b.innerHTML=wordHTML(k);b.onclick=function(){speak(k.w)};g.appendChild(b);
+  });
+})();
+
+// ---------- GAME ----------
+var G={mode:'match',items:[],i:0,score:0,streak:0,clean:0,missed:false,half:0,breakDone:false,locked:false};
+
+function startGame(mode){
+  G.mode=mode;G.i=0;G.score=0;G.streak=0;G.clean=0;G.breakDone=false;
+  if(mode==='match'){
+    G.items=shuffle(KEY).slice(0,12).map(function(q){
+      var same=KEY.filter(function(k){return k.g===q.g&&k!==q});
+      var correct=same[Math.floor(Math.random()*same.length)];
+      var d=shuffle(KEY.filter(function(k){return k.g!==q.g})).slice(0,3);
+      return {q:q,correct:correct,choices:shuffle([correct].concat(d))};
+    });
+  }else{
+    G.items=shuffle(SPY).map(function(s){return {word:s[0],target:s[1]}});
+  }
+  G.half=Math.floor(G.items.length/2);
+  show('game');render();
+}
+function quit(){speechSynthesis&&speechSynthesis.cancel();show('menu')}
+
+function hud(){
+  $('score').textContent=G.score;$('streak').textContent=G.streak;
+  $('prog').style.width=(G.i/G.items.length*100)+'%';
+}
+function reward(){
+  G.streak++;G.score+=10+Math.min(G.streak,5);
+  if(!G.missed)G.clean++;
+}
+function miss(){G.missed=true;G.streak=0;hud()}
+
+function render(){
+  G.missed=false;G.locked=false;
+  $('fb').textContent='';$('fb').className='fb';$('nextBtn').style.display='none';
+  hud();
+  var it=G.items[G.i];
+  if(G.mode==='match'){
+    var h='<div class="prompt">Which key word has the <b>same sound</b> as the underlined part?</div>'+
+      '<div class="word">'+wordHTML(it.q)+' <button class="btn small spk" onclick="speak(\''+it.q.w+'\')">&#128266;</button></div>'+
+      '<div class="choices">';
+    it.choices.forEach(function(c,idx){
+      h+='<button class="choice" data-i="'+idx+'" onclick="pickMatch('+idx+')">'+wordHTML(c)+'</button>';
+    });
+    $('stage').innerHTML=h+'</div>';
+  }else{
+    var kw=find(SPYKEY[it.target]);
+    var h2='<div class="prompt">Spy it! Tap the letters that spell <span class="target">'+it.target+'</span> '+
+      '(like in <b>'+wordHTML(kw)+'</b>)</div><div class="tiles">';
+    it.word.split('').forEach(function(ch,idx){h2+='<button class="tile" data-i="'+idx+'" onclick="pickTile('+idx+')">'+ch+'</button>'});
+    h2+='</div><div class="center"><button class="btn small" onclick="speak(\''+it.word+'\')">&#128266; Hear the word</button></div>';
+    $('stage').innerHTML=h2;
+  }
+}
+
+function pickMatch(idx){
+  if(G.locked)return;
+  var it=G.items[G.i],c=it.choices[idx],btn=document.querySelector('.choice[data-i="'+idx+'"]');
+  speak(c.w);
+  if(c===it.correct){
+    G.locked=true;btn.classList.add('right');reward();hud();
+    document.querySelectorAll('.choice').forEach(function(b){b.disabled=true});
+    $('fb').className='fb good';
+    $('fb').textContent='Yes! '+it.q.w+' and '+c.w+' both say '+GLABEL[it.q.g]+'.';
+    $('nextBtn').style.display='inline-block';
+  }else{
+    btn.classList.add('wrong');btn.disabled=true;miss();
+    $('fb').className='fb bad';$('fb').textContent='Not quite. Read each word slowly and listen for the sound. Try again!';
+  }
+}
+
+function pickTile(idx){
+  if(G.locked)return;
+  var it=G.items[G.i],tiles=document.querySelectorAll('.tile'),t=tiles[idx];
+  t.classList.toggle('sel');
+  var sel=[];tiles.forEach(function(x,i){if(x.classList.contains('sel'))sel.push(i)});
+  if(sel.length<it.target.length)return;
+  var ok=sel.every(function(v,i){return i===0||v===sel[i-1]+1}) &&
+         sel.map(function(i){return it.word[i]}).join('')===it.target;
+  if(ok){
+    G.locked=true;sel.forEach(function(i){tiles[i].classList.remove('sel');tiles[i].classList.add('right')});
+    reward();hud();speak(it.word);
+    $('fb').className='fb good';
+    $('fb').textContent='You spied '+it.target+' in '+it.word+'! Say the sound, then read the word.';
+    $('nextBtn').style.display='inline-block';
+  }else{
+    miss();
+    sel.forEach(function(i){tiles[i].classList.add('shake')});
+    setTimeout(function(){tiles.forEach(function(x){x.classList.remove('sel','shake')})},350);
+    $('fb').className='fb bad';$('fb').textContent='Not that one. Look for '+it.target+' side by side. Try again!';
+  }
+}
+
+function next(){
+  G.i++;
+  if(G.i>=G.items.length){finish();return}
+  if(G.i===G.half&&!G.breakDone){G.breakDone=true;startBreak();return}
+  render();
+}
+
+// ---------- BRAIN BREAK ----------
+var brkT=null;
+function startBreak(){
+  $('brkText').textContent=BREAKS[Math.floor(Math.random()*BREAKS.length)];
+  var n=15;$('brkTimer').textContent=n;$('brk').classList.add('active');
+  clearInterval(brkT);
+  brkT=setInterval(function(){n--;$('brkTimer').textContent=Math.max(n,0);if(n<=0){clearInterval(brkT)}},1000);
+}
+function endBreak(){clearInterval(brkT);$('brk').classList.remove('active');render()}
+
+// ---------- END ----------
+function finish(){
+  hud();$('prog').style.width='100%';
+  var pct=G.clean/G.items.length,n=pct>=.9?3:pct>=.6?2:1;
+  var s='';for(var i=0;i<3;i++)s+=i<n?'\u2B50':'\u2606';
+  $('endStars').textContent=s;
+  $('endMsg').textContent='Score: '+G.score+' \u2022 First-try answers: '+G.clean+' of '+G.items.length+'.';
+  show('end');
+}
+</script>
+</body>
+</html>
